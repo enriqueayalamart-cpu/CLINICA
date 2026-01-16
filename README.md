@@ -7,56 +7,71 @@
 <style>
 body{
  font-family:'Segoe UI',sans-serif;
- background:linear-gradient(120deg,#e0f2ff,#f6fffa);
+ background:linear-gradient(120deg,#dff1ff,#f4fff9);
  padding:20px;
 }
-h2{color:#0b5394;}
+h2{text-align:center;color:#0b5394;}
 .contenedor{
  background:white;
- padding:20px;
- border-radius:15px;
- box-shadow:0 8px 20px rgba(0,0,0,.1);
- margin-bottom:30px;
- max-width:1000px;
+ padding:25px;
+ border-radius:18px;
+ box-shadow:0 10px 25px rgba(0,0,0,.15);
+ margin-bottom:35px;
+ max-width:1200px;
  margin:auto;
 }
-input,button{
- padding:8px;
- margin:5px;
- border-radius:8px;
- border:1px solid #ccc;
+.formulario{
+ display:grid;
+ grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+ gap:12px;
+}
+input{
+ padding:10px;
+ border-radius:10px;
+ border:1px solid #bbb;
+ font-size:15px;
 }
 button{
+ padding:10px;
+ border-radius:10px;
+ border:none;
  background:#0b5394;
  color:white;
+ font-size:15px;
  font-weight:bold;
  cursor:pointer;
 }
 button:hover{background:#073763;}
+.botones{
+ grid-column:1/-1;
+ text-align:center;
+ margin-top:10px;
+}
 table{
  width:100%;
  border-collapse:collapse;
- margin-top:15px;
+ margin-top:25px;
+ font-size:15px;
 }
 th{
- background:#d0e7ff;
- padding:8px;
+ background:#cfe7ff;
+ padding:12px;
 }
 td{
  border:1px solid #ccc;
- padding:7px;
- text-align:center;
+ padding:10px;
 }
-tr:hover{background:#f2f8ff;}
-.ok{color:green;font-weight:bold;}
-.err{color:red;font-weight:bold;}
+tr:hover{background:#f1f8ff;}
+.ok{color:green;font-weight:bold;text-align:center;}
+.err{color:red;font-weight:bold;text-align:center;}
 #recomendaciones{
- background:#f0f9ff;
- border-left:6px solid #0b5394;
- padding:12px;
- margin-top:10px;
+ background:#eef8ff;
+ border-left:8px solid #0b5394;
+ padding:15px;
+ margin-top:15px;
  white-space:pre-line;
- border-radius:10px;
+ border-radius:12px;
+ font-size:16px;
 }
 </style>
 </head>
@@ -66,16 +81,20 @@ tr:hover{background:#f2f8ff;}
 <div class="contenedor">
 <h2>👦 Gestión de Jóvenes</h2>
 
-CURP <input id="j_curp">
-Nombre <input id="j_nombre">
-Apellido <input id="j_apellido">
-Fecha <input type="date" id="j_fecha">
-Dirección <input id="j_direccion"><br>
+<div class="formulario">
+<input placeholder="CURP" id="j_curp">
+<input placeholder="Nombre" id="j_nombre">
+<input placeholder="Apellido" id="j_apellido">
+<input type="date" id="j_fecha">
+<input placeholder="Dirección" id="j_direccion">
 
+<div class="botones">
 <button onclick="insertarJoven()">Guardar</button>
 <button onclick="cargarJoven()">Modificar</button>
 <button onclick="actualizarJoven()">Actualizar</button>
 <button onclick="eliminarJoven()">Eliminar</button>
+</div>
+</div>
 
 <div id="msgJ"></div>
 
@@ -86,14 +105,19 @@ Dirección <input id="j_direccion"><br>
 </table>
 </div>
 
+
 <div class="contenedor">
 <h2>⚖️ Registro de IMC</h2>
 
-CURP <input id="i_curp">
-Peso (kg) <input type="number" step="0.1" id="i_peso">
-Altura (m) <input type="number" step="0.01" id="i_altura"><br>
+<div class="formulario">
+<input placeholder="CURP" id="i_curp">
+<input type="number" step="0.1" placeholder="Peso (kg)" id="i_peso">
+<input type="number" step="0.01" placeholder="Altura (m)" id="i_altura">
 
+<div class="botones">
 <button onclick="insertarIMC()">Calcular IMC</button>
+</div>
+</div>
 
 <div id="recomendaciones"></div>
 <div id="msgI"></div>
@@ -106,22 +130,23 @@ Altura (m) <input type="number" step="0.01" id="i_altura"><br>
 </div>
 
 <script>
-function msg(t, tipo, div){
- document.getElementById(div).innerHTML =
- "<p class='"+tipo+"'>"+t+"</p>";
+function msg(t,tipo,div){
+ document.getElementById(div).innerHTML="<p class='"+tipo+"'>"+t+"</p>";
 }
 
-/* ---------------- JÓVENES ---------------- */
+/* -------- JÓVENES -------- */
 
 function insertarJoven(){
- if(!j_curp.value||!j_nombre.value){msg("⚠️ Datos incompletos","err","msgJ");return;}
+ if(!j_curp.value||!j_nombre.value){
+  msg("⚠️ Completa mínimo CURP y Nombre","err","msgJ");return;
+ }
  let f=tablaJ.insertRow();
  f.insertCell(0).innerText=j_curp.value;
  f.insertCell(1).innerText=j_nombre.value;
  f.insertCell(2).innerText=j_apellido.value;
  f.insertCell(3).innerText=j_fecha.value;
  f.insertCell(4).innerText=j_direccion.value;
- msg("✅ Joven agregado","ok","msgJ");
+ msg("✅ Joven guardado en la tabla","ok","msgJ");
  limpiarJ();
 }
 
@@ -133,7 +158,7 @@ function cargarJoven(){
    j_fecha.value=tablaJ.rows[i].cells[3].innerText;
    j_direccion.value=tablaJ.rows[i].cells[4].innerText;
    tablaJ.dataset.fila=i;
-   msg("✏️ Listo para editar","ok","msgJ");
+   msg("✏️ Datos cargados","ok","msgJ");
    return;
   }
  }
@@ -142,7 +167,7 @@ function cargarJoven(){
 
 function actualizarJoven(){
  let i=tablaJ.dataset.fila;
- if(!i){msg("⚠️ Primero busca con Modificar","err","msgJ");return;}
+ if(!i){msg("⚠️ Primero presiona Modificar","err","msgJ");return;}
  tablaJ.rows[i].cells[1].innerText=j_nombre.value;
  tablaJ.rows[i].cells[2].innerText=j_apellido.value;
  tablaJ.rows[i].cells[3].innerText=j_fecha.value;
@@ -157,11 +182,10 @@ function eliminarJoven(){
   if(tablaJ.rows[i].cells[0].innerText==j_curp.value){
    tablaJ.deleteRow(i);
    msg("🗑️ Joven eliminado","ok","msgJ");
-   limpiarJ();
-   return;
+   limpiarJ(); return;
   }
  }
- msg("⚠️ No encontrado","err","msgJ");
+ msg("⚠️ CURP no encontrada","err","msgJ");
 }
 
 function limpiarJ(){
@@ -169,7 +193,7 @@ function limpiarJ(){
  j_fecha.value="";j_direccion.value="";
 }
 
-/* ---------------- IMC ---------------- */
+/* -------- IMC -------- */
 
 function insertarIMC(){
  if(!i_curp.value||!i_peso.value||!i_altura.value){
@@ -181,20 +205,17 @@ function insertarIMC(){
 
  let clas="", reco="";
  if(imc<18.5){
-   clas="Bajo peso";
-   reco="🔹 Subir peso de forma saludable.\n• Comer más veces al día.\n• Alimentos nutritivos.\n• Ejercicio de fuerza suave.\n• Dormir bien.";
- }
- else if(imc<25){
-   clas="Normal";
-   reco="🟢 Mantener peso saludable.\n• Alimentación balanceada.\n• Ejercicio regular.\n• Buena hidratación.";
- }
- else if(imc<30){
-   clas="Sobrepeso";
-   reco="🟡 Bajar peso saludablemente.\n• Reducir comida chatarra.\n• Más frutas y verduras.\n• Actividad física diaria.";
- }
- else{
-   clas="Obesidad";
-   reco="🔴 Mejorar hábitos.\n• Comer balanceado.\n• Actividad moderada.\n• Menos azúcares.\n• Apoyo médico.";
+  clas="Bajo peso";
+  reco="🔹 Subir peso saludablemente.\n• Comer más veces.\n• Alimentos nutritivos.\n• Ejercicio de fuerza suave.";
+ }else if(imc<25){
+  clas="Normal";
+  reco="🟢 Peso saludable.\n• Mantén dieta balanceada.\n• Ejercicio regular.\n• Dormir bien.";
+ }else if(imc<30){
+  clas="Sobrepeso";
+  reco="🟡 Bajar peso saludablemente.\n• Más frutas y verduras.\n• Menos comida chatarra.\n• Actividad física diaria.";
+ }else{
+  clas="Obesidad";
+  reco="🔴 Mejorar hábitos.\n• Comer balanceado.\n• Actividad moderada.\n• Reducir azúcares.\n• Apoyo médico.";
  }
 
  let min=(18.5*(a*a)).toFixed(1);
@@ -213,7 +234,9 @@ function insertarIMC(){
  f.insertCell(4).innerText=clas;
  f.insertCell(5).innerText=new Date().toLocaleString();
 
- msg("💪 IMC registrado","ok","msgI");
+ msg("💪 IMC registrado en la tabla","ok","msgI");
+
+ i_curp.value=""; i_peso.value=""; i_altura.value="";
 }
 </script>
 
