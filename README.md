@@ -2,27 +2,31 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Panel General de Jóvenes e IMC</title>
+<title>Clínica - Control de Jóvenes e IMC</title>
 
 <style>
 body{
 margin:0;
 font-family:'Segoe UI',sans-serif;
-background:linear-gradient(120deg,#43cea2,#185a9d);
+background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);
 }
 
-.container{width:95%;max-width:1200px;margin:auto;padding:20px;}
-h1{text-align:center;color:white;text-shadow:0 3px 5px rgba(0,0,0,.4);}
+h1{
+text-align:center;
+color:white;
+padding:15px;
+}
 
+.container{width:95%;max-width:1200px;margin:auto;}
 .card{
 background:white;
 border-radius:18px;
 padding:20px;
 margin-bottom:25px;
-box-shadow:0 10px 25px rgba(0,0,0,.25);
+box-shadow:0 10px 25px rgba(0,0,0,.35);
 }
 
-h2{text-align:center;color:#185a9d;}
+h2{text-align:center;color:#2c5364;}
 
 input{
 padding:8px;
@@ -33,7 +37,7 @@ border:1px solid #ccc;
 }
 
 button{
-background:#185a9d;
+background:#2c5364;
 color:white;
 font-weight:bold;
 border:none;
@@ -42,7 +46,7 @@ border-radius:10px;
 cursor:pointer;
 }
 
-button:hover{background:#0d3c66;transform:scale(1.05);}
+button:hover{background:#0f2027;transform:scale(1.05);}
 
 table{
 width:100%;
@@ -56,7 +60,7 @@ padding:8px;
 text-align:center;
 }
 
-th{background:#185a9d;color:white;}
+th{background:#2c5364;color:white;}
 
 .msg{padding:10px;border-radius:8px;margin-bottom:10px;}
 .ok{background:#e7fff2;color:#0a7a43;}
@@ -68,7 +72,8 @@ th{background:#185a9d;color:white;}
 </head>
 
 <body>
-<h1>📋 Sistema Completo Jóvenes & IMC</h1>
+
+<h1>🏥 CLÍNICA - Sistema sin Base de Datos</h1>
 <div class="container">
 
 <div id="mensaje"></div>
@@ -90,7 +95,11 @@ th{background:#185a9d;color:white;}
 <button onclick="actualizarJoven()">Actualizar</button>
 <button onclick="eliminarJoven()">Eliminar</button>
 
-<table id="tablaJovenes"></table>
+<table id="tablaJovenes">
+<tr>
+<th>CURP</th><th>Nombre</th><th>Apellido</th><th>Fecha</th><th>Dirección</th>
+</tr>
+</table>
 </div>
 
 <!-- ================== IMC ================== -->
@@ -108,139 +117,162 @@ th{background:#185a9d;color:white;}
 <button onclick="actualizarIMC()">Actualizar</button>
 <button onclick="eliminarIMC()">Eliminar</button>
 
-<table id="tablaIMC"></table>
+<table id="tablaIMC">
+<tr>
+<th>CURP</th><th>Peso</th><th>Altura</th><th>IMC</th><th>Clasificación</th><th>Fecha</th>
+</tr>
+</table>
 </div>
 
 </div>
 </div>
 
 <script>
-let jovenes = JSON.parse(localStorage.getItem("jovenes")) || [];
-let imcs = JSON.parse(localStorage.getItem("imcs")) || [];
-
 function msg(texto,tipo){
-mensaje.innerHTML = `<div class="msg ${tipo}">${texto}</div>`;
+ mensaje.innerHTML = `<div class="msg ${tipo}">${texto}</div>`;
 }
 
-/* ============ JÓVENES ============ */
+/* ============ JÓVENES (TABLA) ============ */
 
 function insertarJoven(){
- if(!j_curp.value){msg("⚠️ Ingresa CURP","err");return;}
- if(jovenes.some(j=>j.curp===j_curp.value)){
-  msg("⚠️ Esa CURP ya existe","err");return;
+ if(!j_curp.value){ msg("⚠️ Ingresa CURP","err"); return; }
+
+ let tabla = document.getElementById("tablaJovenes");
+
+ // evitar CURP repetida
+ for(let i=1;i<tabla.rows.length;i++){
+   if(tabla.rows[i].cells[0].innerText === j_curp.value){
+     msg("⚠️ Esa CURP ya existe","err");
+     return;
+   }
  }
 
- jovenes.push({
-  curp:j_curp.value,
-  nombre:j_nombre.value,
-  apellido:j_apellido.value,
-  fecha:j_fecha.value,
-  direccion:j_direccion.value
- });
+ let fila = tabla.insertRow();
+ fila.insertCell(0).innerText = j_curp.value;
+ fila.insertCell(1).innerText = j_nombre.value;
+ fila.insertCell(2).innerText = j_apellido.value;
+ fila.insertCell(3).innerText = j_fecha.value;
+ fila.insertCell(4).innerText = j_direccion.value;
 
- localStorage.setItem("jovenes",JSON.stringify(jovenes));
- msg("✅ Joven insertado","ok");
- mostrarJovenes();
+ msg("✅ Joven insertado en la tabla","ok");
 }
 
 function buscarJoven(){
- let j = jovenes.find(j=>j.curp===j_curp.value);
- if(j){
-  j_nombre.value=j.nombre;
-  j_apellido.value=j.apellido;
-  j_fecha.value=j.fecha;
-  j_direccion.value=j.direccion;
-  msg("🔍 Joven encontrado","ok");
- }else msg("❌ No existe","err");
+ let tabla = tablaJovenes;
+ for(let i=1;i<tabla.rows.length;i++){
+  if(tabla.rows[i].cells[0].innerText === j_curp.value){
+   j_nombre.value = tabla.rows[i].cells[1].innerText;
+   j_apellido.value = tabla.rows[i].cells[2].innerText;
+   j_fecha.value = tabla.rows[i].cells[3].innerText;
+   j_direccion.value = tabla.rows[i].cells[4].innerText;
+   msg("🔍 Joven encontrado","ok");
+   return;
+  }
+ }
+ msg("❌ No existe ese joven","err");
 }
 
 function actualizarJoven(){
- let i = jovenes.findIndex(j=>j.curp===j_curp.value);
- if(i>-1){
-  jovenes[i]={curp:j_curp.value,nombre:j_nombre.value,apellido:j_apellido.value,fecha:j_fecha.value,direccion:j_direccion.value};
-  localStorage.setItem("jovenes",JSON.stringify(jovenes));
-  msg("✏️ Joven actualizado","ok");
-  mostrarJovenes();
- }else msg("❌ Primero búscalo","err");
+ let tabla = tablaJovenes;
+ for(let i=1;i<tabla.rows.length;i++){
+  if(tabla.rows[i].cells[0].innerText === j_curp.value){
+   tabla.rows[i].cells[1].innerText = j_nombre.value;
+   tabla.rows[i].cells[2].innerText = j_apellido.value;
+   tabla.rows[i].cells[3].innerText = j_fecha.value;
+   tabla.rows[i].cells[4].innerText = j_direccion.value;
+   msg("✏️ Joven actualizado","ok");
+   return;
+  }
+ }
+ msg("❌ Primero búscalo","err");
 }
 
 function eliminarJoven(){
- jovenes=jovenes.filter(j=>j.curp!==j_curp.value);
- localStorage.setItem("jovenes",JSON.stringify(jovenes));
- msg("🗑️ Joven eliminado","ok");
- mostrarJovenes();
+ let tabla = tablaJovenes;
+ for(let i=1;i<tabla.rows.length;i++){
+  if(tabla.rows[i].cells[0].innerText === j_curp.value){
+   tabla.deleteRow(i);
+   msg("🗑️ Joven eliminado","ok");
+   return;
+  }
+ }
+ msg("❌ No existe ese joven","err");
 }
 
-function mostrarJovenes(){
- let t="<tr><th>CURP</th><th>Nombre</th><th>Apellido</th><th>Fecha</th><th>Dirección</th></tr>";
- jovenes.forEach(j=>{
-  t+=`<tr><td>${j.curp}</td><td>${j.nombre}</td><td>${j.apellido}</td><td>${j.fecha}</td><td>${j.direccion}</td></tr>`;
- });
- tablaJovenes.innerHTML=t;
-}
-
-/* ============ IMC ============ */
+/* ============ IMC (TABLA) ============ */
 
 function imcPrevio(){
  let p=i_peso.value, a=i_altura.value;
  if(p>0 && a>0){
   previo.innerHTML="IMC aproximado: "+(p/(a*a)).toFixed(2);
- }else previo.innerHTML="";
+ } else previo.innerHTML="";
 }
 
 function insertarIMC(){
- let p=parseFloat(i_peso.value), a=parseFloat(i_altura.value), c=i_curp.value;
- if(!c||!p||!a){msg("⚠️ Completa datos","err");return;}
+ if(!i_curp.value || !i_peso.value || !i_altura.value){
+  msg("⚠️ Completa todos los datos","err"); return;
+ }
 
+ let p=parseFloat(i_peso.value), a=parseFloat(i_altura.value);
  let imc=(p/(a*a)).toFixed(2);
  let clas=imc<18.5?"Bajo peso":imc<25?"Normal":imc<30?"Sobrepeso":"Obesidad";
 
- imcs.push({curp:c,peso:p,altura:a,imc:imc,clas:clas,fecha:new Date().toLocaleString()});
- localStorage.setItem("imcs",JSON.stringify(imcs));
- msg("💪 IMC insertado","ok");
- mostrarIMC();
+ let fila = tablaIMC.insertRow();
+ fila.insertCell(0).innerText=i_curp.value;
+ fila.insertCell(1).innerText=p;
+ fila.insertCell(2).innerText=a;
+ fila.insertCell(3).innerText=imc;
+ fila.insertCell(4).innerText=clas;
+ fila.insertCell(5).innerText=new Date().toLocaleString();
+
+ msg("💪 IMC insertado en la tabla","ok");
 }
 
 function buscarIMC(){
- let i=imcs.find(x=>x.curp===i_curp.value);
- if(i){
-  i_peso.value=i.peso;
-  i_altura.value=i.altura;
-  msg("🔍 Registro IMC encontrado","ok");
- }else msg("❌ No existe","err");
+ let tabla=tablaIMC;
+ for(let i=1;i<tabla.rows.length;i++){
+  if(tabla.rows[i].cells[0].innerText===i_curp.value){
+   i_peso.value=tabla.rows[i].cells[1].innerText;
+   i_altura.value=tabla.rows[i].cells[2].innerText;
+   msg("🔍 Registro IMC encontrado","ok");
+   return;
+  }
+ }
+ msg("❌ No existe registro IMC","err");
 }
 
 function actualizarIMC(){
- let pos=imcs.findIndex(x=>x.curp===i_curp.value);
- if(pos>-1){
-  let p=parseFloat(i_peso.value), a=parseFloat(i_altura.value);
-  let imc=(p/(a*a)).toFixed(2);
-  let clas=imc<18.5?"Bajo peso":imc<25?"Normal":imc<30?"Sobrepeso":"Obesidad";
+ let tabla=tablaIMC;
+ for(let i=1;i<tabla.rows.length;i++){
+  if(tabla.rows[i].cells[0].innerText===i_curp.value){
+   let p=parseFloat(i_peso.value), a=parseFloat(i_altura.value);
+   let imc=(p/(a*a)).toFixed(2);
+   let clas=imc<18.5?"Bajo peso":imc<25?"Normal":imc<30?"Sobrepeso":"Obesidad";
 
-  imcs[pos]={curp:i_curp.value,peso:p,altura:a,imc:imc,clas:clas,fecha:new Date().toLocaleString()};
-  localStorage.setItem("imcs",JSON.stringify(imcs));
-  msg("✏️ IMC actualizado","ok");
-  mostrarIMC();
- }else msg("❌ Primero búscalo","err");
+   tabla.rows[i].cells[1].innerText=p;
+   tabla.rows[i].cells[2].innerText=a;
+   tabla.rows[i].cells[3].innerText=imc;
+   tabla.rows[i].cells[4].innerText=clas;
+   tabla.rows[i].cells[5].innerText=new Date().toLocaleString();
+
+   msg("✏️ IMC actualizado","ok");
+   return;
+  }
+ }
+ msg("❌ Primero búscalo","err");
 }
 
 function eliminarIMC(){
- imcs=imcs.filter(x=>x.curp!==i_curp.value);
- localStorage.setItem("imcs",JSON.stringify(imcs));
- msg("🗑️ IMC eliminado","ok");
- mostrarIMC();
+ let tabla=tablaIMC;
+ for(let i=1;i<tabla.rows.length;i++){
+  if(tabla.rows[i].cells[0].innerText===i_curp.value){
+   tabla.deleteRow(i);
+   msg("🗑️ IMC eliminado","ok");
+   return;
+  }
+ }
+ msg("❌ No existe registro IMC","err");
 }
-
-function mostrarIMC(){
- let t="<tr><th>CURP</th><th>Peso</th><th>Altura</th><th>IMC</th><th>Clasificación</th><th>Fecha</th></tr>";
- imcs.forEach(i=>{
-  t+=`<tr><td>${i.curp}</td><td>${i.peso}</td><td>${i.altura}</td><td>${i.imc}</td><td>${i.clas}</td><td>${i.fecha}</td></tr>`;
- });
- tablaIMC.innerHTML=t;
-}
-
-mostrarJovenes();
-mostrarIMC();
 </script>
 </body>
 </html>
