@@ -73,7 +73,7 @@ th{background:#2c5364;color:white;}
 
 <body>
 
-<h1>🏥 CLÍNICA - Sistema sin Base de Datos</h1>
+<h1>🏥 CLÍNICA SISTEMA DE AUTOGUARDADO</h1>
 <div class="container">
 
 <div id="mensaje"></div>
